@@ -1,5 +1,5 @@
 # WeatherToJson ☀️
->Python script used to get information from OpenWeatherMap using an API and store inside a .json file.
+>Python script used to get weather information from OpenWeatherMap using an API and store it inside a .json file.
 
 ## Requirements ✅
 
