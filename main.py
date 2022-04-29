@@ -16,12 +16,15 @@ while True:
     city_input = input("Enter the name of the city: ")
     city_clean = cleanup.cleanup(city_input)
     response = requests.get(API_URL + "?q=" + city_input + "&appid=" + API_KEY)
+    # Handles a commom error that may have been caused by the lack of '' in the .env file
+    if str(response) == '<Response [401]>':
+        response = requests.get(API_URL + "?q=" + city_input + "&appid=" + f'{API_KEY}')
+        if str(response) == '<Response [401]>':
+            break
     # Checks if the entered city is valid
     if checkcity.check_contains_city(city_input) == False:
         print("The city you entered is not valid. \nPlease enter a valid city. \n")
-    # Handles a commom error that may have been caused by the lack of '' in the .env file
-    elif str(response) == '<Response [401]>':
-        response = requests.get(API_URL + "?q=" + city_input + "&appid=" + f'{API_KEY}')
+
     else:
         #Gets the weather information from the API
         response_json  = json.dumps(response.json(), indent=4, ensure_ascii=False).encode('utf8')
