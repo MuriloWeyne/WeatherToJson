@@ -11,32 +11,66 @@ load_dotenv()
 API_KEY = os.getenv('API_KEY')
 API_URL = os.getenv('API_URL')
 
-#Asks the user which city he wants to recieve weather information.
+state = 'asking'
+cities = []
 while True:
-    city_input = input("Enter the name of the city: ")
-    city_clean = cleanup.cleanup(city_input)
-    response = requests.get(API_URL + "?q=" + city_input + "&appid=" + API_KEY)
+    #Asks the user which city he wants to recieve weather information.
+    while (state == 'asking'):
+        city_input = input("Enter the name of the city: ")
+        more_cities = input("Do you want to input another city? (y/n): ")
+        cities.append(city_input)
+        if more_cities == 'n':
+            break
+    clean_cities = []
+    file_names = []
+    responses = []
+    json_responses = []
+    decoded_files = []
+    clean_city = cleanup.cleanup(city_input)
+    if (len(cities) > 1):
+        for i in range(len(cities)):
+            clean = cleanup.cleanup(cities[i])
+            clean_cities.append(clean)
+        for city in cities:
+            response = requests.get(API_URL + "?q=" + city + "&appid=" + API_KEY)
+            responses.append(response)
+        
+    else:
+            response = requests.get(API_URL + "?q=" + city_input + "&appid=" + API_KEY)
+            clean_cities.append(clean_city)
     # Handles a commom error that may have been caused by the lack of '' in the .env file
     if str(response) == '<Response [401]>':
         response = requests.get(API_URL + "?q=" + city_input + "&appid=" + f'{API_KEY}')
         if str(response) == '<Response [401]>':
+            print("Please check if you entered your API key correctly in the .env file.")
             break
     # Checks if the entered city is valid
     if checkcity.check_contains_city(city_input) == False:
         print("The city you entered is not valid. \nPlease enter a valid city. \n")
-
     else:
-        #Gets the weather information from the API
-        response_json  = json.dumps(response.json(), indent=4, ensure_ascii=False).encode('utf8')
-        #File must be decoded before it can be written to a file
-        decoded_file = response_json.decode('utf8')
-        save_path = 'json_data/'
-        file_name = city_clean + '_data.json'
-        complete_name = os.path.join(save_path, file_name)
         #Creates a folder to store all the json_files requested by the user
-        os.makedirs('json_data', exist_ok=True) 
-        with open(complete_name, 'w') as outfile:
-            outfile.write(decoded_file)
+        os.makedirs('json_data', exist_ok=True)
+        if (len(responses) > 1):
+            for resp in responses:
+                response_json  = json.dumps(resp.json(), indent=4, ensure_ascii=False).encode('utf8')
+                json_responses.append(response_json)
+                #File must be decoded before it can be written to a file
+                decoded_file = response_json.decode('utf8')
+                decoded_files.append(decoded_file)
+        else:
+            response_json  = json.dumps(response.json(), indent=4, ensure_ascii=False).encode('utf8')
+            #File must be decoded before it can be written to a file
+            decoded_file = response_json.decode('utf8')
+            decoded_files.append(decoded_file)
+        save_path = 'json_data/'
+        complete_names = []
+        for city_clean in clean_cities:
+            file_name = city_clean + '_data.json'
+            file_names.append(file_name)
+            complete_name = os.path.join(save_path, file_name)
+            with open(complete_name, 'w') as outfile:
+                for decoded in decoded_files:
+                    outfile.write(decoded)
         break
 
 
