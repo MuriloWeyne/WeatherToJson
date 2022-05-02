@@ -12,7 +12,17 @@ API_KEY = os.getenv('API_KEY')
 API_URL = os.getenv('API_URL')
 
 state = 'asking'
+alphabet = 'ABCDEFGHIJKLMNOPQRSTUVW'
+
 cities = []
+clean_cities = []
+file_names = []
+responses = []
+json_responses = []
+decoded_files = []
+outfiles = []
+complete_names = []
+
 while True:
     #Asks the user which city he wants to recieve weather information.
     while (state == 'asking'):
@@ -21,11 +31,7 @@ while True:
         cities.append(city_input)
         if more_cities == 'n':
             break
-    clean_cities = []
-    file_names = []
-    responses = []
-    json_responses = []
-    decoded_files = []
+
     clean_city = cleanup.cleanup(city_input)
     if (len(cities) > 1):
         for i in range(len(cities)):
@@ -63,14 +69,19 @@ while True:
             decoded_file = response_json.decode('utf8')
             decoded_files.append(decoded_file)
         save_path = 'json_data/'
-        complete_names = []
+        j = 0
+        while (j<len(decoded_files)):
+            outfiles.append(alphabet[j])
+            j += 1
         for city_clean in clean_cities:
             file_name = city_clean + '_data.json'
             file_names.append(file_name)
             complete_name = os.path.join(save_path, file_name)
-            with open(complete_name, 'w') as outfile:
-                for decoded in decoded_files:
-                    outfile.write(decoded)
+            complete_names.append(complete_name)
+            for k in range(len(complete_names)):
+                for outfile in outfiles:
+                    with open(complete_names[k], 'w') as outfile:
+                            outfile.write(decoded_files[k])
         break
 
 
