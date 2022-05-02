@@ -11,9 +11,11 @@ load_dotenv()
 API_KEY = os.getenv('API_KEY')
 API_URL = os.getenv('API_URL')
 
+#Declares the current state and alphabet string used to write the requested data to .json files.
 state = 'asking'
 alphabet = 'ABCDEFGHIJKLMNOPQRSTUVW'
 
+#Declares all lists used to store data while the code is running.
 cities = []
 clean_cities = []
 file_names = []
@@ -31,7 +33,8 @@ while True:
         cities.append(city_input)
         if more_cities == 'n':
             break
-
+    
+    #Cleans the user input so it can be used to correctly address it to a file name.
     clean_city = cleanup.cleanup(city_input)
     if (len(cities) > 1):
         for i in range(len(cities)):
@@ -69,6 +72,8 @@ while True:
             decoded_file = response_json.decode('utf8')
             decoded_files.append(decoded_file)
         save_path = 'json_data/'
+        
+        #Code below is used to write the request data into files.
         j = 0
         while (j<len(decoded_files)):
             outfiles.append(alphabet[j])
